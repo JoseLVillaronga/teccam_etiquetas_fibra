@@ -30,17 +30,26 @@ def print_label(label_type: str):
         abort(404)
         
     label_def = get_label_definition(label_type)
-    
-    # Merge defaults with user submitted data (GET or POST)
-    data = label_def.default_data.copy()
     req_data = request.form if request.method == "POST" else request.args
-    for key, value in req_data.items():
-        if value:
-            data[key] = value.strip()
+    
+    # Extract data from request; all fields are required
+    data = {}
+    missing_fields = []
+    for key in label_def.default_data.keys():
+        val = req_data.get(key, "").strip()
+        if not val:
+            missing_fields.append(key)
+        data[key] = val
+        
+    if missing_fields:
+        abort(400, description=f"Debe completar todos los campos antes de imprimir. Faltantes: {', '.join(missing_fields)}")
             
     # Generate Code 39 SVG for the material code
     barcode_val = data.get("codigo_material", "0")
-    barcode_svg = generate_code39_svg(barcode_val, bar_width=1.1, bar_height=30.0)
+    if label_type == "caja-individual-utm":
+        barcode_svg = generate_code39_svg(barcode_val, bar_width=0.6, bar_height=22.0)
+    else:
+        barcode_svg = generate_code39_svg(barcode_val, bar_width=1.0, bar_height=30.0)
 
     return render_template(
         "etiquetas/print_label.html",

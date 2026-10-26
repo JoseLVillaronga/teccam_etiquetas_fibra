@@ -4,9 +4,6 @@ from app.models.ot_model import OtMetricModel
 home_bp = Blueprint("home", __name__)
 
 @home_bp.route("/", methods=["GET"], strict_slashes=True)
-@home_bp.route("/home", methods=["GET"], strict_slashes=True)
-@home_bp.route("/analisisOts", methods=["GET"], strict_slashes=True)
-@home_bp.route("/analisisOts.php", methods=["GET"], strict_slashes=True)
 def index():
     """
     Renders the Home / OT Analysis dashboard replicating Teccam SGT aesthetics.

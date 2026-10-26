@@ -114,6 +114,7 @@
       height: 100%;
       width: auto;
       max-width: 100%;
+      margin-left: auto;
     }
   </style>
 </head>
@@ -122,12 +123,12 @@
   <!-- ================= VISTA IMPRESIÓN: CAJA INDIVIDUAL UTM (102x30 mm) ================= -->
   {% if label_type == 'caja-individual-utm' %}
   <div class="label-box size-caja-individual-utm">
-    <!-- Fila 1: Código + Código de Barras -->
-    <div style="display: flex; justify-content: space-between; align-items: flex-end; height: 11mm;">
-      <div class="font-code-large" style="margin-bottom: 0.5mm;">
+    <!-- Fila 1: Código + Código de Barras alineados arriba -->
+    <div style="display: flex; justify-content: space-between; align-items: flex-start; width: 100%; height: 8.5mm;">
+      <div class="font-code-large" style="margin: 0; padding: 0; line-height: 1.0; font-size: 18pt;">
         {{ data.codigo_material }}
       </div>
-      <div class="barcode-container" style="height: 10mm; display: flex; align-items: flex-end; justify-content: flex-end;">
+      <div class="barcode-container" style="height: 8.5mm; display: flex; align-items: flex-start; justify-content: flex-end; margin-left: auto;">
         {{ barcode_svg | safe }}
       </div>
     </div>
@@ -333,11 +334,13 @@
 
   <!-- Control de Impresión y Auto-cierre -->
   <script>
-    // Lanza la orden de imprimir al cargar la página
+    // Lanza la orden de imprimir al cargar la página si no está en modo vista previa sin impresión
     window.addEventListener('load', () => {
-      setTimeout(() => {
-        window.print();
-      }, 150);
+      if (!window.location.search.includes('noprint=1')) {
+        setTimeout(() => {
+          window.print();
+        }, 150);
+      }
     });
 
     // Cierra la ventana emergente tras 500 ms de finalizar o cancelar la impresión

@@ -1,6 +1,8 @@
 import unittest
 from pathlib import Path
+from urllib.parse import urlencode
 from app import create_app
+from app.models.label_model import LABEL_REGISTRY
 
 class TestTeccamApp(unittest.TestCase):
     def setUp(self):
@@ -26,8 +28,8 @@ class TestTeccamApp(unittest.TestCase):
         self.assertIn("Caja individual UTM", html)
         self.assertIn("Pallet UTW", html)
 
-    def test_all_label_forms_render(self):
-        """Tests that all 4 label form views render with status code 200."""
+    def test_all_label_forms_render_with_placeholders_and_empty_values(self):
+        """Tests that all 4 label form views render with placeholders instead of pre-filled values."""
         routes = [
             "/etiquetas/caja-individual-utm",
             "/etiquetas/caja-intermedia-ut1",
@@ -38,8 +40,10 @@ class TestTeccamApp(unittest.TestCase):
             response = self.client.get(route)
             self.assertEqual(response.status_code, 200, f"Route {route} failed")
             html = response.get_data(as_text=True)
-            self.assertIn("10202520294", html)
+            self.assertIn('value=""', html)
+            self.assertIn("placeholder=", html)
             self.assertIn("Imprimir Etiqueta", html)
+            self.assertIn("errorBanner", html)
 
     def test_pallet_utw_form_has_movistar_branding(self):
         """Tests that Pallet UTW form includes Centro Logístico Avellaneda and Movistar styling."""
@@ -51,9 +55,21 @@ class TestTeccamApp(unittest.TestCase):
         self.assertIn("Para Empresa", html)
         self.assertIn("movistar_logo.png", html)
 
+    def test_print_popup_validation_rejects_empty_fields(self):
+        """Tests that attempting to print without required fields returns 400 Bad Request."""
+        # Missing all parameters
+        response = self.client.get("/etiquetas/imprimir/caja-individual-utm")
+        self.assertEqual(response.status_code, 400)
+        
+        # Partially filled parameters
+        response = self.client.get("/etiquetas/imprimir/caja-individual-utm?codigo_material=10202520294")
+        self.assertEqual(response.status_code, 400)
+
     def test_print_popup_utm(self):
         """Tests the UTM print popup view with mm/pt units, auto-print, and Code 39 barcode."""
-        response = self.client.get("/etiquetas/imprimir/caja-individual-utm?codigo_material=10202520294&utm=1&cantidad=1")
+        data = LABEL_REGISTRY["caja-individual-utm"].default_data
+        url = f"/etiquetas/imprimir/caja-individual-utm?{urlencode(data)}"
+        response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
         html = response.get_data(as_text=True)
         self.assertIn("102mm", html)
@@ -65,7 +81,9 @@ class TestTeccamApp(unittest.TestCase):
 
     def test_print_popup_pallet_utw(self):
         """Tests the Pallet UTW print popup view."""
-        response = self.client.get("/etiquetas/imprimir/pallet-utw")
+        data = LABEL_REGISTRY["pallet-utw"].default_data
+        url = f"/etiquetas/imprimir/pallet-utw?{urlencode(data)}"
+        response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
         html = response.get_data(as_text=True)
         self.assertIn("102mm", html)
@@ -93,6 +111,13 @@ class TestTeccamApp(unittest.TestCase):
         """Tests that invalid label type returns 404."""
         response = self.client.get("/etiquetas/etiqueta-inexistente-xyz")
         self.assertEqual(response.status_code, 404)
+
+    def test_analisis_ots_php_route_returns_404(self):
+        """Tests that legacy route /analisisOts.php has been removed and returns 404."""
+        response = self.client.get("/analisisOts.php")
+        self.assertEqual(response.status_code, 404)
+        response_extless = self.client.get("/analisisOts")
+        self.assertEqual(response_extless.status_code, 404)
 
 if __name__ == "__main__":
     unittest.main()

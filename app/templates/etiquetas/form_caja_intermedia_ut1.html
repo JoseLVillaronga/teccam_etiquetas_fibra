@@ -32,9 +32,21 @@
   </div>
 
   <!-- Formulario WYSIWYG que imita la etiqueta intermedia UT1 -->
-  <form id="labelForm" action="{{ url_for('labels.print_label', label_type=label.type_id) }}" method="GET" target="_blank" onsubmit="lanzarImpresion(event)">
+  <form id="labelForm" novalidate onsubmit="lanzarImpresion(event)">
     
     <div class="bg-white rounded-2xl border border-slate-200 shadow-md p-6 sm:p-8 mb-6">
+      
+      <!-- Banner de Alerta por Campos Vacíos -->
+      <div id="errorBanner" class="hidden mb-6 p-4 rounded-xl bg-red-50 border-2 border-red-300 text-red-900 text-sm flex items-start sm:items-center gap-3">
+        <svg class="w-5 h-5 flex-shrink-0 text-red-600 mt-0.5 sm:mt-0" fill="currentColor" viewBox="0 0 20 20">
+          <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/>
+        </svg>
+        <div>
+          <strong class="font-bold">Datos incompletos: </strong>
+          <span id="errorMsg">Debe completar todos los campos antes de imprimir.</span>
+        </div>
+      </div>
+
       <div class="flex items-center justify-between border-b border-slate-100 pb-3 mb-6">
         <div class="text-xs font-bold uppercase tracking-wider text-slate-500 flex items-center gap-2">
           <svg class="w-4 h-4 text-[#1b285d]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -42,7 +54,7 @@
           </svg>
           <span>Plantilla Visual de Entrada de Datos</span>
         </div>
-        <span class="text-xs text-slate-400">Edite los campos directamente sobre la réplica</span>
+        <span class="text-xs text-slate-400">Ingrese los datos correspondientes en cada campo</span>
       </div>
 
       <!-- Contenedor réplica a escala visual (102x60 mm) -->
@@ -53,59 +65,60 @@
           
           <!-- Bloque Central: Código + Código de Barras -->
           <div class="text-center pb-3 border-b border-slate-100">
-            <label class="block text-[11px] font-bold uppercase text-slate-500 mb-1">Código Material (Code 39)</label>
-            <input type="text" name="codigo_material" id="codigoMaterialInput" value="{{ label.default_data.codigo_material }}" required
-                   class="w-64 max-w-full mx-auto text-center text-2xl font-bold font-mono px-3 py-1.5 border-b-2 border-slate-900 rounded outline-none focus:bg-slate-50">
+            <label class="block text-[11px] font-bold uppercase text-slate-500 mb-1">Código Material (Code 39) *</label>
+            <input type="text" name="codigo_material" id="codigoMaterialInput" value="" placeholder="Ej: {{ label.default_data.codigo_material }}" data-nombre="Código Material" required
+                   class="w-64 max-w-full mx-auto text-center text-2xl font-bold font-mono px-3 py-1.5 border border-slate-300 rounded outline-none focus:ring-2 focus:ring-[#1b285d] transition">
             
-            <div id="barcodePreview" class="h-12 max-w-full flex items-center justify-center mt-2">
-              <img id="barcodeImg" src="{{ url_for('labels.get_barcode', value=label.default_data.codigo_material) }}" alt="Barcode" class="h-12 object-contain">
+            <div id="barcodePreview" class="h-12 max-w-full flex items-center justify-center mt-2 min-h-[48px]">
+              <span id="barcodePlaceholder" class="text-xs text-slate-400 font-mono italic">Ingrese código para generar barras</span>
+              <img id="barcodeImg" src="" alt="Barcode" class="h-12 object-contain hidden">
             </div>
           </div>
 
           <!-- Descripción -->
           <div class="text-center pb-2 border-b border-slate-100">
-            <label class="block text-[11px] font-bold uppercase text-slate-500 mb-1">Descripción</label>
-            <input type="text" name="descripcion" value="{{ label.default_data.descripcion }}" required
-                   class="w-full text-center text-sm font-medium px-3 py-1.5 border border-slate-300 rounded focus:ring-2 focus:ring-[#1b285d] outline-none">
+            <label class="block text-[11px] font-bold uppercase text-slate-500 mb-1">Descripción *</label>
+            <input type="text" name="descripcion" value="" placeholder="Ej: {{ label.default_data.descripcion }}" data-nombre="Descripción" required
+                   class="w-full text-center text-sm font-medium px-3 py-1.5 border border-slate-300 rounded focus:ring-2 focus:ring-[#1b285d] outline-none transition">
           </div>
 
           <!-- UTM y Cantidad -->
           <div class="grid grid-cols-2 gap-4 pb-3 border-b border-slate-100">
             <div>
-              <label class="block text-[11px] font-bold uppercase text-slate-500 mb-1">UTM</label>
-              <input type="text" name="utm" value="{{ label.default_data.utm }}" required
-                     class="w-full text-base font-bold px-3 py-1.5 border border-slate-300 rounded focus:ring-2 focus:ring-[#1b285d] outline-none">
+              <label class="block text-[11px] font-bold uppercase text-slate-500 mb-1">UTM *</label>
+              <input type="text" name="utm" value="" placeholder="Ej: {{ label.default_data.utm }}" data-nombre="UTM" required
+                     class="w-full text-base font-bold px-3 py-1.5 border border-slate-300 rounded focus:ring-2 focus:ring-[#1b285d] outline-none transition">
             </div>
             <div>
-              <label class="block text-[11px] font-bold uppercase text-slate-500 mb-1">Cantidad</label>
-              <input type="text" name="cantidad" value="{{ label.default_data.cantidad }}" required
-                     class="w-full text-xl font-extrabold px-3 py-1.5 border border-slate-300 rounded focus:ring-2 focus:ring-[#1b285d] outline-none">
+              <label class="block text-[11px] font-bold uppercase text-slate-500 mb-1">Cantidad *</label>
+              <input type="text" name="cantidad" value="" placeholder="Ej: {{ label.default_data.cantidad }}" data-nombre="Cantidad" required
+                     class="w-full text-xl font-extrabold px-3 py-1.5 border border-slate-300 rounded focus:ring-2 focus:ring-[#1b285d] outline-none transition">
             </div>
           </div>
 
           <!-- Presentación: Pres (W, X, Y, Z) -->
           <div class="pb-3 border-b border-slate-100">
-            <span class="block text-xs font-bold text-slate-700 mb-1.5">Pres:</span>
+            <span class="block text-xs font-bold text-slate-700 mb-1.5">Pres: *</span>
             <div class="grid grid-cols-4 gap-2 text-center">
               <div>
                 <label class="block text-[10px] text-slate-500 font-mono">W</label>
-                <input type="text" name="pres_w" value="{{ label.default_data.pres_w }}" required
-                       class="w-full text-center font-bold font-mono py-1 px-1 border border-slate-300 rounded focus:ring-2 focus:ring-[#1b285d] outline-none">
+                <input type="text" name="pres_w" value="" placeholder="Ej: {{ label.default_data.pres_w }}" data-nombre="Pres W" required
+                       class="w-full text-center font-bold font-mono py-1 px-1 border border-slate-300 rounded focus:ring-2 focus:ring-[#1b285d] outline-none transition">
               </div>
               <div>
                 <label class="block text-[10px] text-slate-500 font-mono">X</label>
-                <input type="text" name="pres_x" value="{{ label.default_data.pres_x }}" required
-                       class="w-full text-center font-bold font-mono py-1 px-1 border border-slate-300 rounded focus:ring-2 focus:ring-[#1b285d] outline-none">
+                <input type="text" name="pres_x" value="" placeholder="Ej: {{ label.default_data.pres_x }}" data-nombre="Pres X" required
+                       class="w-full text-center font-bold font-mono py-1 px-1 border border-slate-300 rounded focus:ring-2 focus:ring-[#1b285d] outline-none transition">
               </div>
               <div>
                 <label class="block text-[10px] text-slate-500 font-mono">Y</label>
-                <input type="text" name="pres_y" value="{{ label.default_data.pres_y }}" required
-                       class="w-full text-center font-bold font-mono py-1 px-1 border border-slate-300 rounded focus:ring-2 focus:ring-[#1b285d] outline-none">
+                <input type="text" name="pres_y" value="" placeholder="Ej: {{ label.default_data.pres_y }}" data-nombre="Pres Y" required
+                       class="w-full text-center font-bold font-mono py-1 px-1 border border-slate-300 rounded focus:ring-2 focus:ring-[#1b285d] outline-none transition">
               </div>
               <div>
                 <label class="block text-[10px] text-slate-500 font-mono">Z</label>
-                <input type="text" name="pres_z" value="{{ label.default_data.pres_z }}" required
-                       class="w-full text-center font-bold font-mono py-1 px-1 border border-slate-300 rounded focus:ring-2 focus:ring-[#1b285d] outline-none">
+                <input type="text" name="pres_z" value="" placeholder="Ej: {{ label.default_data.pres_z }}" data-nombre="Pres Z" required
+                       class="w-full text-center font-bold font-mono py-1 px-1 border border-slate-300 rounded focus:ring-2 focus:ring-[#1b285d] outline-none transition">
               </div>
             </div>
           </div>
@@ -113,14 +126,14 @@
           <!-- Derivada y Peso -->
           <div class="grid grid-cols-2 gap-4">
             <div>
-              <label class="block text-[11px] font-bold uppercase text-slate-500 mb-1">Derivada</label>
-              <input type="text" name="derivada" value="{{ label.default_data.derivada }}" required
-                     class="w-full text-sm font-bold font-mono px-3 py-1.5 border border-slate-300 rounded focus:ring-2 focus:ring-[#1b285d] outline-none">
+              <label class="block text-[11px] font-bold uppercase text-slate-500 mb-1">Derivada *</label>
+              <input type="text" name="derivada" value="" placeholder="Ej: {{ label.default_data.derivada }}" data-nombre="Derivada" required
+                     class="w-full text-sm font-bold font-mono px-3 py-1.5 border border-slate-300 rounded focus:ring-2 focus:ring-[#1b285d] outline-none transition">
             </div>
             <div>
-              <label class="block text-[11px] font-bold uppercase text-slate-500 mb-1">Peso</label>
-              <input type="text" name="peso" value="{{ label.default_data.peso }}" required
-                     class="w-full text-sm font-bold px-3 py-1.5 border border-slate-300 rounded focus:ring-2 focus:ring-[#1b285d] outline-none">
+              <label class="block text-[11px] font-bold uppercase text-slate-500 mb-1">Peso *</label>
+              <input type="text" name="peso" value="" placeholder="Ej: {{ label.default_data.peso }}" data-nombre="Peso" required
+                     class="w-full text-sm font-bold px-3 py-1.5 border border-slate-300 rounded focus:ring-2 focus:ring-[#1b285d] outline-none transition">
             </div>
           </div>
 
@@ -134,7 +147,7 @@
           <svg class="w-4 h-4 text-emerald-600" fill="currentColor" viewBox="0 0 20 20">
             <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
           </svg>
-          <span>Ventana emergente en <strong>mm</strong> / <strong>pt</strong> con auto-impresión y auto-cierre a los 500ms</span>
+          <span>Todos los campos son obligatorios para enviar a impresión</span>
         </div>
 
         <button type="submit" class="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-8 py-3 rounded-xl bg-[#1b285d] hover:bg-[#131d45] text-white font-bold shadow-md hover:shadow-lg transition">
@@ -156,15 +169,56 @@
 <script>
   const codeInput = document.getElementById('codigoMaterialInput');
   const barcodeImg = document.getElementById('barcodeImg');
+  const barcodePlaceholder = document.getElementById('barcodePlaceholder');
 
   codeInput.addEventListener('input', () => {
-    const val = encodeURIComponent(codeInput.value.trim() || '0');
-    barcodeImg.src = `{{ url_for('labels.get_barcode', value='') }}${val}`;
+    const rawVal = codeInput.value.trim();
+    if (rawVal.length > 0) {
+      const val = encodeURIComponent(rawVal);
+      barcodeImg.src = `{{ url_for('labels.get_barcode', value='') }}${val}`;
+      barcodeImg.classList.remove('hidden');
+      barcodePlaceholder.classList.add('hidden');
+    } else {
+      barcodeImg.classList.add('hidden');
+      barcodePlaceholder.classList.remove('hidden');
+    }
   });
 
   function lanzarImpresion(e) {
     e.preventDefault();
     const form = document.getElementById('labelForm');
+    const inputs = form.querySelectorAll('input[required]');
+    let faltantes = [];
+    let primerVacio = null;
+
+    inputs.forEach(input => {
+      input.classList.remove('border-red-500', 'bg-red-50', 'ring-2', 'ring-red-200');
+      if (!input.value.trim()) {
+        const nombre = input.getAttribute('data-nombre') || input.name;
+        faltantes.push(nombre);
+        input.classList.add('border-red-500', 'bg-red-50', 'ring-2', 'ring-red-200');
+        if (!primerVacio) primerVacio = input;
+
+        input.addEventListener('input', () => {
+          input.classList.remove('border-red-500', 'bg-red-50', 'ring-2', 'ring-red-200');
+          const errorBanner = document.getElementById('errorBanner');
+          if (errorBanner) errorBanner.classList.add('hidden');
+        }, { once: true });
+      }
+    });
+
+    if (faltantes.length > 0) {
+      const errorBanner = document.getElementById('errorBanner');
+      const errorMsg = document.getElementById('errorMsg');
+      if (errorBanner && errorMsg) {
+        errorMsg.textContent = `Por favor complete todos los campos obligatorios (${faltantes.join(', ')}).`;
+        errorBanner.classList.remove('hidden');
+        errorBanner.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+      }
+      if (primerVacio) primerVacio.focus();
+      return;
+    }
+
     const formData = new FormData(form);
     const params = new URLSearchParams(formData).toString();
     const url = "{{ url_for('labels.print_label', label_type=label.type_id) }}?" + params;
