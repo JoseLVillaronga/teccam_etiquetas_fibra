@@ -1,0 +1,84 @@
+{% extends "base.html" %}
+
+{% block title %}404 - Página No Encontrada | Sistema de Gestión Teccam{% endblock %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto px-4 py-12 sm:py-16">
+  
+  <div class="bg-white/95 backdrop-blur-sm rounded-2xl border border-slate-200 shadow-md p-6 sm:p-10 text-center relative overflow-hidden">
+    
+    <!-- Banda decorativa superior -->
+    <div class="absolute top-0 left-0 right-0 h-2 bg-gradient-to-r from-[#1b285d] via-[#3b82f6] to-[#b91c1c]"></div>
+
+    <!-- Icono y Código 404 -->
+    <div class="inline-flex items-center justify-center w-20 h-20 rounded-full bg-red-50 border border-red-200 text-[#b91c1c] mb-4">
+      <svg class="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+      </svg>
+    </div>
+
+    <div class="text-xs font-bold uppercase tracking-wider text-[#b91c1c] mb-1">
+      Error HTTP 404 &bull; Recurso Inexistente
+    </div>
+
+    <h1 class="text-3xl sm:text-4xl font-extrabold text-[#1b285d] mb-2 tracking-tight">
+      Ruta No Encontrada
+    </h1>
+
+    <p class="text-slate-600 max-w-lg mx-auto mb-6 text-sm sm:text-base">
+      La dirección solicitada no existe o no satisface las políticas del controlador de rutas estricto del Sistema de Gestión Teccam.
+    </p>
+
+    <!-- Ficha de Diagnóstico Técnico (Estándar ASD-STE100 para rápida resolución a las 3 AM) -->
+    <div class="bg-slate-50 border border-slate-200 rounded-xl p-4 text-left font-mono text-xs text-slate-700 max-w-lg mx-auto mb-8 shadow-xs">
+      <div class="font-sans font-bold text-slate-900 mb-2 border-b border-slate-200 pb-1 flex items-center justify-between">
+        <span>Ficha de Diagnóstico Operativo</span>
+        <span class="text-[10px] font-normal text-slate-500">{{ timestamp }}</span>
+      </div>
+      <div class="grid grid-cols-3 gap-1 py-0.5">
+        <span class="text-slate-500 font-sans">Ruta Solicitada:</span>
+        <span class="col-span-2 font-bold text-red-700">{{ path }}</span>
+      </div>
+      <div class="grid grid-cols-3 gap-1 py-0.5">
+        <span class="text-slate-500 font-sans">Método HTTP:</span>
+        <span class="col-span-2 text-slate-800">{{ method }}</span>
+      </div>
+      <div class="grid grid-cols-3 gap-1 py-0.5">
+        <span class="text-slate-500 font-sans">Políticas Activas:</span>
+        <span class="col-span-2 text-slate-800">Control Estricto de Rutas (Strict Slashes = ON)</span>
+      </div>
+      <div class="grid grid-cols-3 gap-1 py-0.5">
+        <span class="text-slate-500 font-sans">Controlador:</span>
+        <span class="col-span-2 text-slate-800">error_controller.py / 404 Boundary</span>
+      </div>
+    </div>
+
+    <!-- Botones de Acción -->
+    <div class="flex flex-col sm:flex-row items-center justify-center gap-3">
+      <a href="{{ url_for('home.index') }}" class="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-2.5 rounded-lg bg-[#1b285d] text-white font-medium hover:bg-[#131d45] transition shadow-xs">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/>
+        </svg>
+        <span>Volver a Inicio</span>
+      </a>
+
+      <button onclick="window.history.back()" class="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-2.5 rounded-lg bg-white border border-slate-300 text-slate-700 font-medium hover:bg-slate-50 transition">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
+        </svg>
+        <span>Regresar</span>
+      </button>
+    </div>
+
+    <!-- Rutas válidas sugeridas -->
+    <div class="mt-8 pt-6 border-t border-slate-100 text-xs text-slate-500">
+      <span>Rutas disponibles recomendadas: </span>
+      <a href="{{ url_for('home.index') }}" class="text-[#1b285d] font-semibold underline hover:text-blue-700 mx-1">/</a>
+      <a href="{{ url_for('home.index') }}" class="text-[#1b285d] font-semibold underline hover:text-blue-700 mx-1">/home</a>
+      <a href="{{ url_for('home.index') }}" class="text-[#1b285d] font-semibold underline hover:text-blue-700 mx-1">/analisisOts</a>
+    </div>
+
+  </div>
+
+</div>
+{% endblock %}

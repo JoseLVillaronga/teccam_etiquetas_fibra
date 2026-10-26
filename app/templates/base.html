@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="es" class="h-full">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{% block title %}Sistema de Gestión Teccam | SGT{% endblock %}</title>
+  
+  <!-- Tailwind CSS CDN cargado localmente (100% offline) -->
+  <script src="{{ url_for('static', filename='vendor/tailwind/tailwind.js') }}"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            teccam: {
+              navy: '#1b285d',
+              'navy-dark': '#131d45',
+              'navy-light': '#24357c',
+              red: '#b91c1c',
+              'red-dark': '#991b1b',
+              'red-accent': '#dc2626',
+            }
+          }
+        }
+      }
+    }
+  </script>
+
+  <!-- Estilos Corporativos Teccam -->
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+  {% block extra_head %}{% endblock %}
+</head>
+<body class="min-h-full flex flex-col bg-white text-slate-800 antialiased">
+
+  <!-- ================= TOP NAVBAR ================= -->
+  <header class="bg-[#1b285d] text-white shadow-md sticky top-0 z-40">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex items-center justify-between h-14">
+        
+        <!-- Logo Teccam -->
+        <a href="{{ url_for('home.index') }}" class="flex items-center gap-2 group" title="Sistema de Gestión Teccam">
+          <div class="relative flex items-center justify-center">
+            <!-- Emblema Teccam estilo captura -->
+            <svg class="h-9 w-28 drop-shadow" viewBox="0 0 140 45" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <!-- Óvalo exterior -->
+              <ellipse cx="68" cy="22.5" rx="64" ry="19" stroke="#3b82f6" stroke-width="2.5" stroke-dasharray="80 5 10 5" fill="rgba(255,255,255,0.08)"/>
+              <!-- Swoosh dinámico rojo -->
+              <path d="M12 28 C 35 14, 85 8, 126 18" stroke="#dc2626" stroke-width="2.2" stroke-linecap="round"/>
+              <!-- Texto Teccam estilizado -->
+              <text x="68" y="27" text-anchor="middle" font-family="'Segoe UI', Roboto, sans-serif" font-weight="800" font-style="italic" font-size="20" fill="#ffffff" letter-spacing="0.5">Teccam</text>
+            </svg>
+          </div>
+        </a>
+
+        <!-- Navegación Principal -->
+        <nav class="flex items-center space-x-2 text-sm font-medium">
+          <!-- Inicio -->
+          <a href="{{ url_for('home.index') }}" class="px-3 py-1.5 rounded text-white {% if active_nav == 'inicio' %}font-bold bg-white/15{% else %}text-slate-200 hover:text-white hover:bg-white/10{% endif %} transition">
+            Inicio
+          </a>
+
+          <!-- Menú Desplegable: Etiquetas -->
+          <div class="nav-dropdown">
+            <button type="button" class="flex items-center gap-1.5 px-3 py-1.5 rounded text-white hover:bg-white/10 transition font-medium">
+              <span>Etiquetas</span>
+              <svg class="w-3.5 h-3.5 opacity-80" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+              </svg>
+            </button>
+            <div class="nav-dropdown-menu min-w-[240px] shadow-xl py-1.5">
+              <a href="{{ url_for('labels.show_form', label_type='caja-individual-utm') }}" class="flex items-center justify-between {% if active_nav == 'caja-individual-utm' %}bg-slate-100 font-bold text-[#1b285d]{% endif %}">
+                <span>Caja individual UTM</span>
+                <span class="text-[11px] text-slate-400 font-mono">102×30 mm</span>
+              </a>
+              <a href="{{ url_for('labels.show_form', label_type='caja-intermedia-ut1') }}" class="flex items-center justify-between {% if active_nav == 'caja-intermedia-ut1' %}bg-slate-100 font-bold text-[#1b285d]{% endif %}">
+                <span>Caja intermedia UT1</span>
+                <span class="text-[11px] text-slate-400 font-mono">102×60 mm</span>
+              </a>
+              <a href="{{ url_for('labels.show_form', label_type='caja-intermedia-ut2') }}" class="flex items-center justify-between {% if active_nav == 'caja-intermedia-ut2' %}bg-slate-100 font-bold text-[#1b285d]{% endif %}">
+                <span>Caja intermedia UT2</span>
+                <span class="text-[11px] text-slate-400 font-mono">102×60 mm</span>
+              </a>
+              <a href="{{ url_for('labels.show_form', label_type='pallet-utw') }}" class="flex items-center justify-between {% if active_nav == 'pallet-utw' %}bg-slate-100 font-bold text-[#1b285d]{% endif %}">
+                <span>Pallet UTW</span>
+                <span class="text-[11px] text-slate-400 font-mono">102×153 mm</span>
+              </a>
+            </div>
+          </div>
+
+          <!-- Avatar de Usuario -->
+          <button type="button" class="ml-2 p-1 rounded-full text-slate-200 hover:text-white hover:bg-white/10 transition" title="Perfil de usuario">
+            <div class="w-7 h-7 rounded-full bg-white/20 flex items-center justify-center border border-white/30">
+              <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                <path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd"/>
+              </svg>
+            </div>
+          </button>
+        </nav>
+      </div>
+    </div>
+  </header>
+
+  <!-- ================= CONTENIDO PRINCIPAL ================= -->
+  <main class="flex-1 watermark-bg relative overflow-x-hidden">
+    {% block content %}{% endblock %}
+  </main>
+
+  <!-- ================= FOOTER CORPORATIVO (ROJO TECCAM) ================= -->
+  <footer class="bg-[#b91c1c] text-white pt-6 pb-4 px-4 sm:px-8 border-t-2 border-red-800">
+    <div class="max-w-7xl mx-auto">
+      
+      <!-- Fila Superior del Footer -->
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6 pb-6 border-b border-red-700/60">
+        
+        <!-- Columna Izquierda: Sistema -->
+        <div>
+          <h2 class="text-xl sm:text-2xl font-bold tracking-tight text-white mb-1">
+            Sistema de gestión Teccam
+          </h2>
+          <p class="text-sm sm:text-base text-red-100 font-normal">
+            SGT, desarrollo de "Teccam S.R.L."
+          </p>
+        </div>
+
+        <!-- Columna Derecha: Contacto -->
+        <div class="md:text-right">
+          <h3 class="text-lg sm:text-xl font-bold text-white mb-1">
+            Contacto
+          </h3>
+          <p class="text-sm text-red-100">
+            E-Mail : <a href="mailto:info@teccamsrl.com.ar" class="underline hover:text-white transition">info@teccamsrl.com.ar</a>
+          </p>
+          <p class="text-sm text-red-100">
+            Teccam S.R.L.
+          </p>
+        </div>
+      </div>
+
+      <!-- Fila Inferior de Copyright -->
+      <div class="pt-4 flex flex-col sm:flex-row items-center justify-between text-xs sm:text-sm text-red-200">
+        <p>© {{ copyright_year | default("2021") }} Teccam S.R.L.</p>
+        <p>Desarrollo: Teccam S.R.L.</p>
+      </div>
+
+    </div>
+  </footer>
+
+  {% block scripts %}{% endblock %}
+</body>
+</html>

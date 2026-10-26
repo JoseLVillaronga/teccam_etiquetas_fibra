@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>{{ label.name }}</title>
+  <style>
+    @media print {
+      @page {
+        margin: 0;
+      }
+    }
+
+    * {
+      box-sizing: border-box;
+      -webkit-print-color-adjust: exact !important;
+      print-color-adjust: exact !important;
+    }
+
+    html, body {
+      margin: 0;
+      padding: 0;
+      background: #ffffff;
+      color: #000000;
+      font-family: Arial, Helvetica, sans-serif;
+      overflow: hidden;
+    }
+
+    /* Dimensiones exactas en mm para cada formato */
+    .size-caja-individual-utm {
+      width: 102mm;
+      height: 30mm;
+    }
+    .size-caja-intermedia-ut1,
+    .size-caja-intermedia-ut2 {
+      width: 102mm;
+      height: 60mm;
+    }
+    .size-pallet-utw {
+      width: 102mm;
+      height: 153mm;
+    }
+
+    .label-box {
+      box-sizing: border-box;
+      padding: 2.2mm 3.5mm;
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      border: 1px solid #d1d5db;
+    }
+
+    @media print {
+      body {
+        border: none;
+      }
+      .label-box {
+        border: none;
+      }
+      .no-print {
+        display: none !important;
+      }
+    }
+
+    /* Tipografías en pt según especificación estricta */
+    .font-code-large {
+      font-size: 19pt;
+      font-weight: 700;
+      letter-spacing: 0.5pt;
+      line-height: 1.1;
+    }
+
+    .font-code-pallet {
+      font-size: 21pt;
+      font-weight: 700;
+      letter-spacing: 0.8pt;
+      line-height: 1.1;
+    }
+
+    .font-desc {
+      font-size: 9.5pt;
+      font-weight: 400;
+      line-height: 1.25;
+    }
+
+    .font-regular {
+      font-size: 9.5pt;
+      font-weight: 400;
+    }
+
+    .font-bold-val {
+      font-size: 11pt;
+      font-weight: 700;
+    }
+
+    .font-big-qty {
+      font-size: 14pt;
+      font-weight: 700;
+    }
+
+    .font-pallet-qty {
+      font-size: 18pt;
+      font-weight: 700;
+    }
+
+    .font-pres {
+      font-size: 12pt;
+      font-weight: 700;
+      letter-spacing: 2pt;
+    }
+
+    .barcode-container svg {
+      display: block;
+      height: 100%;
+      width: auto;
+      max-width: 100%;
+    }
+  </style>
+</head>
+<body class="size-{{ label_type }}">
+
+  <!-- ================= VISTA IMPRESIÓN: CAJA INDIVIDUAL UTM (102x30 mm) ================= -->
+  {% if label_type == 'caja-individual-utm' %}
+  <div class="label-box size-caja-individual-utm">
+    <!-- Fila 1: Código + Código de Barras -->
+    <div style="display: flex; justify-content: space-between; align-items: flex-end; height: 11mm;">
+      <div class="font-code-large" style="margin-bottom: 0.5mm;">
+        {{ data.codigo_material }}
+      </div>
+      <div class="barcode-container" style="height: 10mm; display: flex; align-items: flex-end; justify-content: flex-end;">
+        {{ barcode_svg | safe }}
+      </div>
+    </div>
+
+    <!-- Fila 2: Descripción -->
+    <div class="font-desc" style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-top: 0.8mm;">
+      {{ data.descripcion }}
+    </div>
+
+    <!-- Fila 3: UTM y Cantidad -->
+    <div style="display: flex; justify-content: space-between; align-items: baseline; margin-top: 0.5mm;">
+      <div class="font-regular">
+        UTM: <span class="font-bold-val">{{ data.utm }}</span>
+      </div>
+      <div class="font-regular">
+        Cantidad: <span class="font-big-qty">{{ data.cantidad }}</span>
+      </div>
+    </div>
+
+    <!-- Fila 4: Derivada y Peso -->
+    <div style="display: flex; justify-content: space-between; align-items: baseline; margin-top: 0.5mm;">
+      <div class="font-regular">
+        Derivada: <span class="font-bold-val">{{ data.derivada }}</span>
+      </div>
+      <div class="font-regular">
+        Peso: <span class="font-bold-val">{{ data.peso }}</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= VISTA IMPRESIÓN: CAJA INTERMEDIA UT1 (102x60 mm) ================= -->
+  {% elif label_type == 'caja-intermedia-ut1' %}
+  <div class="label-box size-caja-intermedia-ut1" style="padding: 3mm 4mm;">
+    <!-- Código y Código de barras centrados -->
+    <div style="text-align: center;">
+      <div class="font-code-large" style="border-bottom: 1.5pt solid #000; display: inline-block; padding-bottom: 0.5mm; font-size: 21pt;">
+        {{ data.codigo_material }}
+      </div>
+      <div class="barcode-container" style="height: 12mm; display: flex; justify-content: center; margin-top: 1.5mm;">
+        {{ barcode_svg | safe }}
+      </div>
+    </div>
+
+    <!-- Descripción -->
+    <div class="font-desc" style="text-align: center; margin-top: 1mm;">
+      {{ data.descripcion }}
+    </div>
+
+    <!-- UTM y Cantidad -->
+    <div style="display: flex; justify-content: space-between; align-items: baseline; padding: 0 4mm;">
+      <div class="font-regular" style="font-size: 11pt;">
+        UTM: <span style="font-size: 14pt; font-weight: bold;">{{ data.utm }}</span>
+      </div>
+      <div class="font-regular" style="font-size: 11pt;">
+        Cantidad: <span style="font-size: 17pt; font-weight: bold;">{{ data.cantidad }}</span>
+      </div>
+    </div>
+
+    <!-- Pres: W, X, Y, Z -->
+    <div style="padding: 0 2mm;">
+      <div style="font-size: 11pt; margin-bottom: 0.5mm;">Pres:</div>
+      <div style="display: flex; justify-content: space-between; font-size: 12pt; font-weight: bold; letter-spacing: 1pt;">
+        <span>W {{ data.pres_w }}</span>
+        <span>X {{ data.pres_x }}</span>
+        <span>Y {{ data.pres_y }}</span>
+        <span>Z {{ data.pres_z }}</span>
+      </div>
+    </div>
+
+    <!-- Derivada y Peso -->
+    <div style="display: flex; justify-content: space-between; align-items: baseline; border-top: 0.5pt solid #e5e7eb; padding-top: 1mm;">
+      <div class="font-regular" style="font-size: 10pt;">
+        Derivada: <span style="font-size: 11pt; font-weight: bold;">{{ data.derivada }}</span>
+      </div>
+      <div class="font-regular" style="font-size: 10pt;">
+        Peso: <span style="font-size: 11pt; font-weight: bold;">{{ data.peso }}</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= VISTA IMPRESIÓN: CAJA INTERMEDIA UT2 (102x60 mm) ================= -->
+  {% elif label_type == 'caja-intermedia-ut2' %}
+  <div class="label-box size-caja-intermedia-ut2" style="padding: 3mm 4mm;">
+    <!-- Código y Código de barras centrados -->
+    <div style="text-align: center;">
+      <div class="font-code-large" style="border-bottom: 1.5pt solid #000; display: inline-block; padding-bottom: 0.5mm; font-size: 21pt;">
+        {{ data.codigo_material }}
+      </div>
+      <div class="barcode-container" style="height: 12mm; display: flex; justify-content: center; margin-top: 1.5mm;">
+        {{ barcode_svg | safe }}
+      </div>
+    </div>
+
+    <!-- Descripción -->
+    <div class="font-desc" style="text-align: center; margin-top: 1mm;">
+      {{ data.descripcion }}
+    </div>
+
+    <!-- UTM y Cantidad -->
+    <div style="display: flex; justify-content: space-between; align-items: baseline; padding: 0 4mm;">
+      <div class="font-regular" style="font-size: 11pt;">
+        UTM: <span style="font-size: 14pt; font-weight: bold;">{{ data.utm }}</span>
+      </div>
+      <div class="font-regular" style="font-size: 11pt;">
+        Cantidad: <span style="font-size: 17pt; font-weight: bold;">{{ data.cantidad }}</span>
+      </div>
+    </div>
+
+    <!-- Pres: W, X, Y, Z -->
+    <div style="padding: 0 2mm;">
+      <div style="font-size: 11pt; margin-bottom: 0.5mm;">Pres:</div>
+      <div style="display: flex; justify-content: space-between; font-size: 12pt; font-weight: bold; letter-spacing: 1pt;">
+        <span>W {{ data.pres_w }}</span>
+        <span>X {{ data.pres_x }}</span>
+        <span>Y {{ data.pres_y }}</span>
+        <span>Z {{ data.pres_z }}</span>
+      </div>
+    </div>
+
+    <!-- Derivada y Peso -->
+    <div style="display: flex; justify-content: space-between; align-items: baseline; border-top: 0.5pt solid #e5e7eb; padding-top: 1mm;">
+      <div class="font-regular" style="font-size: 10pt;">
+        Derivada: <span style="font-size: 11pt; font-weight: bold;">{{ data.derivada }}</span>
+      </div>
+      <div class="font-regular" style="font-size: 10pt;">
+        Peso: <span style="font-size: 11pt; font-weight: bold;">{{ data.peso }}</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= VISTA IMPRESIÓN: PALLET UTW (102x153 mm) ================= -->
+  {% elif label_type == 'pallet-utw' %}
+  <div class="label-box size-pallet-utw" style="padding: 4mm 5mm;">
+    
+    <!-- Encabezado: Logo Oficial Movistar + Centro Logístico Avellaneda -->
+    <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1.5pt solid #000; padding-bottom: 2mm;">
+      <!-- Logo Oficial Movistar (PNG) -->
+      <div style="height: 15mm; display: flex; align-items: center;">
+        <img src="{{ url_for('static', filename='img/movistar_logo.png') }}" alt="Movistar" style="height: 15mm; width: auto; object-fit: contain;">
+      </div>
+
+      <!-- Texto Centro Logístico Avellaneda -->
+      <div style="text-align: right;">
+        <div style="font-size: 13pt; font-weight: 700; line-height: 1.1;">Centro Logístico</div>
+        <div style="font-size: 15pt; font-weight: 800; line-height: 1.1;">Avellaneda</div>
+      </div>
+    </div>
+
+    <!-- Bloque Empresa y Pedido/Derivada -->
+    <div style="padding: 2mm 0; border-bottom: 1.5pt solid #000;">
+      <div style="font-size: 11pt; margin-bottom: 1mm;">
+        Para Empresa: <strong style="font-size: 12pt;">{{ data.empresa }}</strong>
+      </div>
+      <div style="font-size: 11pt;">
+        Pedido/Derivada N°: <strong style="font-size: 12pt; letter-spacing: 0.5pt;">{{ data.pedido_derivada }}</strong>
+      </div>
+    </div>
+
+    <!-- Bloque Cód. material + Código + Código de Barras -->
+    <div style="text-align: center; padding: 2mm 0; border-bottom: 1.5pt solid #000;">
+      <div style="font-size: 9pt; color: #4b5563; margin-bottom: 0.5mm;">Cód. material</div>
+      <div class="font-code-pallet" style="margin-bottom: 1.5mm;">
+        {{ data.codigo_material }}
+      </div>
+      <div class="barcode-container" style="height: 14mm; display: flex; justify-content: center; margin-bottom: 1.5mm;">
+        {{ barcode_svg | safe }}
+      </div>
+      <div style="font-size: 10pt; line-height: 1.25;">
+        <div>{{ data.descripcion_linea1 }}</div>
+        <div>{{ data.descripcion_linea2 }}</div>
+      </div>
+    </div>
+
+    <!-- Bloque UTM y Cantidad Total -->
+    <div style="display: flex; justify-content: space-between; align-items: baseline; padding: 2mm 2mm; border-bottom: 1.5pt solid #000;">
+      <div style="font-size: 12pt;">
+        UTM: <span style="font-size: 16pt; font-weight: bold;">{{ data.utm }}</span>
+      </div>
+      <div style="font-size: 12pt;">
+        Cantidad: <span class="font-pallet-qty">{{ data.cantidad }}</span>
+      </div>
+    </div>
+
+    <!-- Bloque Presentación Pres (W, X, Y, Z) -->
+    <div style="padding: 2mm 2mm; border-bottom: 1.5pt solid #000;">
+      <div style="font-size: 11.5pt; margin-bottom: 1mm;">Pres:</div>
+      <div style="display: flex; justify-content: space-between; font-size: 13pt; font-weight: bold; letter-spacing: 1pt;">
+        <span>W {{ data.pres_w }}</span>
+        <span>X {{ data.pres_x }}</span>
+        <span>Y {{ data.pres_y }}</span>
+        <span>Z {{ data.pres_z }}</span>
+      </div>
+    </div>
+
+    <!-- Bloque Peso Pallet -->
+    <div style="text-align: center; padding: 2mm 0;">
+      <span style="font-size: 11.5pt;">Peso pallet: </span>
+      <span style="font-size: 14pt; font-weight: bold;">{{ data.peso_pallet }}</span>
+    </div>
+
+  </div>
+  {% endif %}
+
+  <!-- Control de Impresión y Auto-cierre -->
+  <script>
+    // Lanza la orden de imprimir al cargar la página
+    window.addEventListener('load', () => {
+      setTimeout(() => {
+        window.print();
+      }, 150);
+    });
+
+    // Cierra la ventana emergente tras 500 ms de finalizar o cancelar la impresión
+    window.addEventListener('afterprint', () => {
+      setTimeout(() => {
+        window.close();
+      }, 500);
+    });
+  </script>
+</body>
+</html>
