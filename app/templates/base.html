@@ -5,6 +5,11 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>{% block title %}Sistema de Gestión Teccam | SGT{% endblock %}</title>
   
+  <!-- Favicon corporativo con diseño de etiqueta -->
+  <link rel="icon" type="image/svg+xml" href="{{ url_for('static', filename='img/favicon.svg') }}">
+  <link rel="alternate icon" type="image/png" href="{{ url_for('static', filename='img/favicon.png') }}">
+  <link rel="shortcut icon" href="{{ url_for('static', filename='favicon.ico') }}">
+
   <!-- Tailwind CSS CDN cargado localmente (100% offline) -->
   <script src="{{ url_for('static', filename='vendor/tailwind/tailwind.js') }}"></script>
   <script>

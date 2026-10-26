@@ -119,5 +119,17 @@ class TestTeccamApp(unittest.TestCase):
         response_extless = self.client.get("/analisisOts")
         self.assertEqual(response_extless.status_code, 404)
 
+    def test_favicon_endpoint_and_assets(self):
+        """Tests that /favicon.ico returns 200 and static favicon assets exist."""
+        response = self.client.get("/favicon.ico")
+        self.assertEqual(response.status_code, 200)
+        self.assertIn("image/", response.mimetype)
+        response.close()
+
+        root = Path(__file__).resolve().parent.parent
+        self.assertTrue((root / "app" / "static" / "favicon.ico").exists())
+        self.assertTrue((root / "app" / "static" / "img" / "favicon.svg").exists())
+        self.assertTrue((root / "app" / "static" / "img" / "favicon.png").exists())
+
 if __name__ == "__main__":
     unittest.main()

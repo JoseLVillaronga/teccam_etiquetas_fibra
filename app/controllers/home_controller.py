@@ -1,7 +1,16 @@
-from flask import Blueprint, render_template, current_app
+from flask import Blueprint, render_template, current_app, send_from_directory
 from app.models.ot_model import OtMetricModel
 
 home_bp = Blueprint("home", __name__)
+
+@home_bp.route("/favicon.ico", methods=["GET"], strict_slashes=True)
+def favicon():
+    """Serves the label favicon icon file."""
+    return send_from_directory(
+        current_app.static_folder,
+        "favicon.ico",
+        mimetype="image/vnd.microsoft.icon"
+    )
 
 @home_bp.route("/", methods=["GET"], strict_slashes=True)
 def index():
