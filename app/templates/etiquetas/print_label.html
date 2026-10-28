@@ -8,7 +8,42 @@
   <style>
     @media print {
       @page {
+        size: {{ label.width_mm }}mm {{ label.height_mm }}mm;
         margin: 0;
+      }
+      body {
+        margin: 0;
+        padding: 0;
+        border: none;
+      }
+      .label-box {
+        border: none !important;
+        margin: 0 !important;
+      }
+      .page-break {
+        page-break-after: always;
+        break-after: page;
+        page-break-inside: avoid;
+        break-inside: avoid;
+      }
+      .no-print {
+        display: none !important;
+      }
+    }
+
+    @media screen {
+      body {
+        padding: 12px;
+        background: #f1f5f9;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 12px;
+        overflow-y: auto;
+      }
+      .label-box {
+        background: #ffffff;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.1);
       }
     }
 
@@ -24,7 +59,6 @@
       background: #ffffff;
       color: #000000;
       font-family: Arial, Helvetica, sans-serif;
-      overflow: hidden;
     }
 
     /* Dimensiones exactas en mm para cada formato */
@@ -52,17 +86,6 @@
       border: 1px solid #d1d5db;
     }
 
-    @media print {
-      body {
-        border: none;
-      }
-      .label-box {
-        border: none;
-      }
-      .no-print {
-        display: none !important;
-      }
-    }
 
     /* Tipografías en pt según especificación estricta */
     .font-code-large {
@@ -122,9 +145,10 @@
 </head>
 <body class="size-{{ label_type }}">
 
+  {% for copy_idx in range(cantEti | default(1)) %}
   <!-- ================= VISTA IMPRESIÓN: CAJA INDIVIDUAL UTM (102x30 mm) ================= -->
   {% if label_type == 'caja-individual-utm' %}
-  <div class="label-box size-caja-individual-utm">
+  <div class="label-box size-caja-individual-utm {% if not loop.last %}page-break{% endif %}">
     <!-- Fila 1: Código + Código de Barras alineados arriba -->
     <div style="display: flex; justify-content: space-between; align-items: flex-start; width: 100%; height: 8.5mm;">
       <div class="font-code-large" style="margin: 0; padding: 0; line-height: 1.0; font-size: 18pt;">
@@ -163,7 +187,7 @@
 
   <!-- ================= VISTA IMPRESIÓN: CAJA INTERMEDIA UT1 (102x60 mm) ================= -->
   {% elif label_type == 'caja-intermedia-ut1' %}
-  <div class="label-box size-caja-intermedia-ut1" style="padding: 3mm 4mm;">
+  <div class="label-box size-caja-intermedia-ut1 {% if not loop.last %}page-break{% endif %}" style="padding: 3mm 4mm;">
     <!-- Código y Código de barras centrados -->
     <div style="text-align: center;">
       <div class="font-code-large" style="border-bottom: 1.5pt solid #000; display: inline-block; padding-bottom: 0.5mm; font-size: 21pt;">
@@ -213,7 +237,7 @@
 
   <!-- ================= VISTA IMPRESIÓN: CAJA INTERMEDIA UT2 (102x60 mm) ================= -->
   {% elif label_type == 'caja-intermedia-ut2' %}
-  <div class="label-box size-caja-intermedia-ut2" style="padding: 3mm 4mm;">
+  <div class="label-box size-caja-intermedia-ut2 {% if not loop.last %}page-break{% endif %}" style="padding: 3mm 4mm;">
     <!-- Código y Código de barras centrados -->
     <div style="text-align: center;">
       <div class="font-code-large" style="border-bottom: 1.5pt solid #000; display: inline-block; padding-bottom: 0.5mm; font-size: 21pt;">
@@ -263,7 +287,7 @@
 
   <!-- ================= VISTA IMPRESIÓN: PALLET UTW (102x153 mm) ================= -->
   {% elif label_type == 'pallet-utw' %}
-  <div class="label-box size-pallet-utw" style="padding: 4mm 5mm;">
+  <div class="label-box size-pallet-utw {% if not loop.last %}page-break{% endif %}" style="padding: 4mm 5mm;">
     
     <!-- Encabezado: Logo Oficial Movistar + Centro Logístico Avellaneda -->
     <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1.5pt solid #000; padding-bottom: 2mm;">
@@ -333,6 +357,7 @@
 
   </div>
   {% endif %}
+  {% endfor %}
 
   <!-- Control de Impresión y Auto-cierre -->
   <script>

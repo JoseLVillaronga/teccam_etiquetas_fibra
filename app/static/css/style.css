@@ -32,12 +32,6 @@ body {
   background-size: cover, cover, 800px 400px;
 }
 
-/* Vertical text for Y axis */
-.vertical-text {
-  writing-mode: vertical-rl;
-  transform: rotate(180deg);
-}
-
 /* Floating Action Button (FAB) */
 .fab-container {
   position: fixed;
@@ -107,18 +101,3 @@ body {
   color: var(--teccam-navy);
 }
 
-/* Chart Tooltip */
-.chart-tooltip {
-  position: absolute;
-  pointer-events: none;
-  background: rgba(15, 23, 42, 0.9);
-  color: #fff;
-  padding: 6px 10px;
-  border-radius: 6px;
-  font-size: 12px;
-  line-height: 1.4;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-  transition: opacity 0.15s ease, transform 0.15s ease;
-  z-index: 30;
-  white-space: nowrap;
-}

@@ -51,12 +51,19 @@ def print_label(label_type: str):
     else:
         barcode_svg = generate_code39_svg(barcode_val, bar_width=1.0, bar_height=30.0)
 
+    # Cantidad de copias de la etiqueta física a imprimir (mínimo 1)
+    try:
+        cant_eti = max(1, int(req_data.get("cantEti", 1)))
+    except (ValueError, TypeError):
+        cant_eti = 1
+
     return render_template(
         "etiquetas/print_label.html",
         label_type=label_type,
         label=label_def,
         data=data,
-        barcode_svg=barcode_svg
+        barcode_svg=barcode_svg,
+        cantEti=cant_eti
     )
 
 @label_bp.route("/barcode/<value>", methods=["GET"], strict_slashes=True)

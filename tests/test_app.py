@@ -79,6 +79,30 @@ class TestTeccamApp(unittest.TestCase):
         self.assertIn("window.close()", html)
         self.assertIn("<svg", html)  # Code 39 SVG barcode embedded
 
+    def test_print_multiple_copies_with_cant_eti(self):
+        """Tests that cantEti parameter repeats the label and applies page-break between copies."""
+        data = dict(LABEL_REGISTRY["caja-individual-utm"].default_data)
+        data["cantEti"] = "3"
+        url = f"/etiquetas/imprimir/caja-individual-utm?{urlencode(data)}"
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 200)
+        html = response.get_data(as_text=True)
+
+        # Exactly 3 label-box containers rendered
+        self.assertEqual(html.count('class="label-box size-caja-individual-utm'), 3)
+        # Exactly 2 page-break classes in elements (between 1-2 and 2-3, but not on the last copy)
+        self.assertEqual(html.count('page-break"'), 2)
+
+    def test_box_forms_include_cant_eti_input(self):
+        """Tests that individual and intermediate box forms contain the cantEti copies input."""
+        for label_type in ["caja-individual-utm", "caja-intermedia-ut1", "caja-intermedia-ut2"]:
+            response = self.client.get(f"/etiquetas/{label_type}")
+            self.assertEqual(response.status_code, 200)
+            html = response.get_data(as_text=True)
+            self.assertIn('name="cantEti"', html)
+            self.assertIn('value="1"', html)
+            self.assertIn("modificarCopias", html)
+
     def test_print_popup_pallet_utw(self):
         """Tests the Pallet UTW print popup view."""
         data = LABEL_REGISTRY["pallet-utw"].default_data

@@ -53,12 +53,11 @@ El proyecto sigue una arquitectura MVC modular con separación estricta de respo
 │   ├── __init__.py           # Application Factory (create_app), blueprints y context processors
 │   ├── config.py             # Configuración desacoplada leída desde variables de entorno
 │   ├── controllers/          # Controladores HTTP (Blueprints)
-│   │   ├── home_controller.py   # Vista principal y telemetría de planta
+│   │   ├── home_controller.py   # Vista principal y acceso a módulos de etiquetas
 │   │   ├── label_controller.py  # Formularios, validación y endpoint de impresión
 │   │   └── error_controller.py  # Manejador determinista de errores 404 / 500
 │   ├── models/               # Modelos de dominio y registro de especificaciones
-│   │   ├── label_model.py       # Registro canónico LABEL_REGISTRY y dimensiones
-│   │   └── ot_model.py          # Métricas y KPIs de órdenes de trabajo (OTs)
+│   │   └── label_model.py       # Registro canónico LABEL_REGISTRY y dimensiones
 │   ├── services/             # Servicios desacoplados de dominio
 │   │   └── barcode_service.py   # Generador ReportLab Code 39 a SVG
 │   ├── static/               # Assets locales (CSS, logos, iconos, favicons)
