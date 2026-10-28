@@ -117,15 +117,26 @@ class TestTeccamApp(unittest.TestCase):
         # Exactly 2 page-break classes in elements (between 1-2 and 2-3, but not on the last copy)
         self.assertEqual(html.count('page-break"'), 2)
 
-    def test_box_forms_include_cant_eti_input(self):
-        """Tests that individual and intermediate box forms contain the cantEti copies input."""
-        for label_type in ["caja-individual-utm", "caja-intermedia-ut1", "caja-intermedia-ut2"]:
+    def test_all_forms_include_cant_eti_input(self):
+        """Tests that all label forms (individual, intermediate boxes, pallet) contain the cantEti copies input."""
+        for label_type in ["caja-individual-utm", "caja-intermedia-ut1", "caja-intermedia-ut2", "pallet-utw"]:
             response = self.client.get(f"/etiquetas/{label_type}")
             self.assertEqual(response.status_code, 200)
             html = response.get_data(as_text=True)
             self.assertIn('name="cantEti"', html)
             self.assertIn('value="1"', html)
             self.assertIn("modificarCopias", html)
+
+    def test_print_multiple_copies_pallet_utw(self):
+        """Tests that cantEti parameter repeats the pallet label and applies page-break between copies."""
+        data = dict(LABEL_REGISTRY["pallet-utw"].default_data)
+        data["cantEti"] = "2"
+        url = f"/etiquetas/imprimir/pallet-utw?{urlencode(data)}"
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 200)
+        html = response.get_data(as_text=True)
+        self.assertEqual(html.count('class="label-box size-pallet-utw'), 2)
+        self.assertEqual(html.count('page-break"'), 1)
 
     def test_print_popup_pallet_utw(self):
         """Tests the Pallet UTW print popup view."""
