@@ -47,7 +47,15 @@ def print_label(label_type: str):
     # Generate Code 39 SVG for the material code
     barcode_val = data.get("codigo_material", "0")
     if label_type == "caja-individual-utm":
-        barcode_svg = generate_code39_svg(barcode_val, bar_width=0.6, bar_height=22.0)
+        # Calibración de ancho óptimo para etiqueta individual UTM manteniendo la altura exacta (22 pt / 8.5 mm)
+        code_len = max(len(str(barcode_val).strip()), 1)
+        if code_len <= 8:
+            bw = 0.85
+        elif code_len <= 10:
+            bw = 0.72
+        else:
+            bw = 0.62
+        barcode_svg = generate_code39_svg(barcode_val, bar_width=bw, bar_height=22.0)
     else:
         barcode_svg = generate_code39_svg(barcode_val, bar_width=1.0, bar_height=30.0)
 

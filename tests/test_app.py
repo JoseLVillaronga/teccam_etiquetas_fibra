@@ -79,6 +79,30 @@ class TestTeccamApp(unittest.TestCase):
         self.assertIn("window.close()", html)
         self.assertIn("<svg", html)  # Code 39 SVG barcode embedded
 
+    def test_utm_barcode_width_calibrated_for_8_digits(self):
+        """Tests that individual UTM barcode is calibrated wider (bar_width=0.85) keeping height at 22pt."""
+        data = dict(LABEL_REGISTRY["caja-individual-utm"].default_data)
+        data["codigo_material"] = "20310013"
+        url = f"/etiquetas/imprimir/caja-individual-utm?{urlencode(data)}"
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 200)
+        html = response.get_data(as_text=True)
+        # Verify SVG height attribute is exactly 22.0 and width is expanded to ~150.7 pt
+        self.assertIn('height="22.0"', html)
+        self.assertIn('width="150.7', html)
+
+    def test_box_and_pallet_barcode_centered(self):
+        """Tests that intermediate box and pallet labels center the barcode with margin auto and flex justify-center."""
+        for label_type in ["caja-intermedia-ut1", "caja-intermedia-ut2", "pallet-utw"]:
+            data = dict(LABEL_REGISTRY[label_type].default_data)
+            data["codigo_material"] = "20310013"
+            url = f"/etiquetas/imprimir/{label_type}?{urlencode(data)}"
+            response = self.client.get(url)
+            self.assertEqual(response.status_code, 200)
+            html = response.get_data(as_text=True)
+            self.assertIn("margin: 0 auto !important;", html)
+            self.assertIn("display: flex; justify-content: center; align-items: center;", html)
+
     def test_print_multiple_copies_with_cant_eti(self):
         """Tests that cantEti parameter repeats the label and applies page-break between copies."""
         data = dict(LABEL_REGISTRY["caja-individual-utm"].default_data)
